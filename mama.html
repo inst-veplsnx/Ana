@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>С 8 Марта, мама!</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Cormorant+Infant:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Cormorant Infant', serif;
+      color: #5d3a4e;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      opacity: 0.7;
+    }
+    .content {
+      position: relative;
+      z-index: 1;
+      padding: 30px 15px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-family: 'Marck Script', cursive;
+      font-size: 3.5em;
+      text-align: center;
+      margin: 30px 0;
+      text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+      animation: glow 2s ease-in-out infinite;
+    }
+    .greeting-text {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 15px;
+      margin: 30px auto;
+      max-width: 800px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      backdrop-filter: blur(5px);
+    }
+    .greeting-text p {
+      font-size: 1.3em;
+      margin-bottom: 25px;
+      text-indent: 30px;
+    }
+    .gallery {
+      display: flex;
+      gap: 20px;
+      padding: 40px 0;
+      justify-content: center;
+      align-items: center;
+    }
+    .photo {
+      flex: 1;
+      max-width: calc(33.33% - 20px);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+      transform: scale(0.95);
+      filter: brightness(0.95);
+    }
+    .photo:hover {
+      transform: scale(1.03);
+      filter: brightness(1);
+      z-index: 2;
+    }
+    .photo img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+    @keyframes glow {
+      0%, 100% { text-shadow: 0 0 20px rgba(255,182,193,0.5); }
+      50% { text-shadow: 0 0 40px rgba(255,182,193,0.8); }
+    }
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5em;
+        margin: 20px 0;
+      }
+      .greeting-text {
+        padding: 20px;
+        margin: 20px 0;
+      }
+      .greeting-text p {
+        font-size: 1.1em;
+        text-indent: 20px;
+      }
+    }
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2em;
+      }
+      .greeting-text p {
+        font-size: 1em;
+        text-indent: 0;
+      }
+    }
+    #music-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #f8d7da;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      font-size: 2em;
+      color: #5d3a4e;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: background-color 0.3s;
+      z-index: 2;
+    }
+    #music-button:hover {
+      background-color: #f5c6cb;
+    }
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container"></div>
+
+  <div class="content">
+    <h1>С 8 Марта, мама!</h1>
+
+    <div class="greeting-text">
+      <p>Дорогая мамочка, в этот весенний день хочу сказать тебе самые важные слова! Ты — наше солнышко, источник тепла и бесконечной заботы. Спасибо за твоё терпение, мудрость и безграничную любовь.</p>
+      <p>Пусть каждый твой день наполняется радостью, здоровье крепчает, а сердце согревают наши любящие мысли. Ты заслуживаешь всего самого прекрасного, ведь ты — самая лучшая мама на свете!</p>
+      <p>Спасибо за всё, что ты делаешь для нас. За бессонные ночи, за поддержку в трудную минуту, за твою улыбку, которая освещает наш дом. Любим тебя больше жизни!</p>
+    </div>
+
+    <div class="gallery">
+      <div class="photo">
+        <img src="images/photo3.jpg" alt="Наши лучшие моменты">
+      </div>
+      <div class="photo">
+        <img src="images/photo1.jpg" alt="Семейное счастье">
+      </div>
+      <div class="photo">
+        <img src="images/photo2.jpg" alt="Мамина улыбка">
+      </div>
+    </div>
+  </div>
+
+  <audio id="bg-music" loop>
+    <source src="audio/music.wav" type="audio/mpeg">
+    Ваш браузер не поддерживает аудио.
+  </audio>
+
+  <button id="music-button">▶</button>
+
+  <script>
+    let petals = [];
+    let sparkles = [];
+
+    function setup() {
+      const canvas = createCanvas(windowWidth, windowHeight);
+      canvas.parent('canvas-container');
+      textAlign(CENTER, CENTER);
+
+      const isMobile = window.matchMedia("(max-width: 768px)").matches;
+      const petalsCount = isMobile ? 50 : 100;
+      const sparklesCount = isMobile ? 25 : 50;
+
+      for (let i = 0; i < petalsCount; i++) petals.push(new Petal());
+      for (let i = 0; i < sparklesCount; i++) sparkles.push(new Sparkle());
+    }
+
+    function draw() {
+      drawGradientBackground();
+      petals.forEach(p => { p.update(); p.display(); });
+      sparkles.forEach(s => { s.update(); s.display(); });
+
+      let glowSize = 150 + 20 * sin(millis() * 0.005);
+      noStroke();
+      fill(255, 255, 255, 50);
+      ellipse(width / 2, height / 2, glowSize, glowSize);
+    }
+
+    function drawGradientBackground() {
+      for (let y = 0; y < height; y++) {
+        let inter = map(y, 0, height, 0, 1);
+        let c1 = color(255, 240, 245);
+        let c2 = color(255, 230, 235);
+        stroke(lerpColor(c1, c2, inter));
+        line(0, y, width, y);
+      }
+    }
+
+    class Petal {
+      constructor() {
+        this.reset();
+        this.size = random(8, 15);
+      }
+      reset() {
+        this.x = random(width);
+        this.y = random(-100, 0);
+        this.speed = random(1, 3);
+        this.angle = random(TWO_PI);
+      }
+      update() {
+        this.y += this.speed;
+        this.x += sin(this.angle) * 0.5;
+        this.angle += 0.01;
+        if (this.y > height) this.reset();
+      }
+      display() {
+        noStroke();
+        fill(255, 192, 203, 180);
+        ellipse(this.x, this.y, this.size, this.size * 1.2);
+      }
+    }
+
+    class Sparkle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = random(width);
+        this.y = random(height);
+        this.size = random(2, 4);
+        this.life = random(50, 100);
+      }
+      update() {
+        this.life--;
+        if (this.life <= 0) this.reset();
+      }
+      display() {
+        noStroke();
+        fill(255, 255, 200, 200);
+        ellipse(this.x, this.y, this.size);
+      }
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const audio = document.getElementById('bg-music');
+      const button = document.getElementById('music-button');
+      
+      button.textContent = '▶';
+      
+      button.addEventListener('click', function() {
+        if (audio.paused) {
+          audio.play();
+          button.textContent = '⏸';
+        } else {
+          audio.pause();
+          button.textContent = '▶';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
